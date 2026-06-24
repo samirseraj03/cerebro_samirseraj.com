@@ -1,0 +1,86 @@
+# Orquestador de todos los servicios (Proxy + Proyectos)
+
+services:
+  # El Proxy Inverso que distribuye el tráfico
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: master_proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./proyectos:/var/www/proyectos # Opcional: para assets estáticos si es necesario
+    depends_on:
+      - web-frontend
+      - django-backend
+      - fastapi-service
+      - laravel-app
+
+  # Proyecto 1: React / Angular
+  web-frontend:
+    build: ./proyectos/web-frontend
+    container_name: app_frontend
+    restart: unless-stopped
+
+  # Proyecto 2: Django Backend
+  django-backend:
+    build: ./proyectos/django-backend
+    container_name: app_django
+    restart: unless-stopped
+
+  # Proyecto 3: FastAPI
+  fastapi-service:
+    build: ./proyectos/fastapi-service
+    container_name: app_fastapi
+    restart: unless-stopped
+    depends_on:
+      - fastapi-db
+    environment:
+      - HOST=fastapi-db
+
+  # Proyecto 4: Laravel
+  laravel-app:
+    build: ./proyectos/laravel-app
+    container_name: app_laravel
+    restart: unless-stopped
+    depends_on:
+      - laravel-db
+    environment:
+      - DB_CONNECTION=pgsql
+      - DB_HOST=laravel-db
+      - DB_PORT=5432
+      - DB_DATABASE=enquestas
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - APP_KEY=base64:MhzP+IsNW3iNO2vmkk8tIcil9yoJTo818MLOF8V9yQg=
+
+  # Base de Datos para FastAPI
+  fastapi-db:
+    image: postgres:14.15-alpine
+    container_name: fastapi_db
+    environment:
+      - POSTGRES_DB=MachineSimulator
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./proyectos/fastapi-service/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - fastapi_pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # Base de Datos para Laravel
+  laravel-db:
+    image: postgres:14.15-alpine
+    container_name: laravel_db
+    environment:
+      - POSTGRES_DB=enquestas
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./proyectos/laravel-app/docker/dockerFolder/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - laravel_pgdata:/var/lib/postgresql@14/data:rw
+    restart: unless-stopped
+
+volumes:
+  fastapi_pgdata:
+  laravel_pgdata:
