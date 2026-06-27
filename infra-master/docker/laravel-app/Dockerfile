@@ -22,14 +22,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Copiar ficheros de Composer desde el subdirectorio enquestes/
-COPY enquestes/composer.json enquestes/composer.loc[k]* ./
+COPY enquestes/composer.json ./
 
 # Desactivar el bloqueo por advisories de seguridad (Laravel 10 tiene CVEs conocidos)
 # TODO: Actualizar a Laravel 11+ cuando sea posible
 RUN composer config --global policy.advisories.block false
 
-# Instalar dependencias de PHP
-RUN composer install \
+# Generar de nuevo las dependencias (update) en vez de usar el lock
+RUN composer update \
     --no-dev \
     --no-interaction \
     --no-scripts \
