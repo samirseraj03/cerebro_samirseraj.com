@@ -33,7 +33,7 @@ RUN composer update \
     --no-dev \
     --no-interaction \
     --no-scripts \
-    --prefer-dist \
+    --prefer-source \
     --optimize-autoloader \
     --ignore-platform-reqs
 
