@@ -86,11 +86,17 @@ RUN mkdir -p storage/framework/{sessions,views,cache} \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
-# Crear .env si no existe (Laravel lo necesita para funcionar)
-RUN if [ ! -f .env ]; then \
-    cp .env.example .env 2>/dev/null || \
-    echo "APP_KEY=base64:$(head -c 32 /dev/urandom | base64)" > .env; \
-    fi
+# Crear .env mínimo - las variables DB_* vienen del docker-compose.yml
+# Laravel necesita APP_KEY y un .env file para funcionar
+RUN rm -f .env && \
+    echo "APP_NAME=Enquestes" > .env && \
+    echo "APP_ENV=production" >> .env && \
+    echo "APP_DEBUG=true" >> .env && \
+    echo "APP_URL=http://localhost" >> .env && \
+    echo "LOG_CHANNEL=stack" >> .env && \
+    echo "SESSION_DRIVER=file" >> .env && \
+    echo "CACHE_DRIVER=file" >> .env && \
+    echo "QUEUE_CONNECTION=sync" >> .env
 
 EXPOSE 80
 

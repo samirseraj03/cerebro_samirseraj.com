@@ -17,7 +17,7 @@ mkdir -p "$PROYECTOS_DIR"
 
 # Lista de tus repositorios (Formato: usuario/repositorio)
 REPOS=(
-    "samirseraj03/Wether"                # django
+    "samirseraj03/Gestio_parking"                # django
     "samirseraj03/DataSimulation"         # fastapi
     "samirseraj03/RecollirEnquestesEnPHP" # laravel
     "samirseraj03/my_porfolio"            # frontend-porfolio
@@ -70,9 +70,11 @@ for i in "${!REPOS[@]}"; do
             echo "⚠️  No se pudo determinar la rama remota para $CARPETA. Saltando..."
         elif [ "$LOCAL" != "$REMOTE" ]; then
             echo "🆕 ¡Cambios detectados! Actualizando código de $CARPETA..."
-            git pull origin main 2>/dev/null || git pull origin master 2>/dev/null
+            git reset --hard origin/main 2>/dev/null || git reset --hard origin/master 2>/dev/null
             echo "🐳 Forzando reconstrucción de imágenes..."
             docker compose -f "$ROOT_DIR/docker-compose.yml" build "$CARPETA"
+            echo "🚀 Reiniciando contenedor..."
+            docker compose -f "$ROOT_DIR/docker-compose.yml" up -d "$CARPETA"
         else
             echo "✅ $CARPETA ya está actualizado."
         fi

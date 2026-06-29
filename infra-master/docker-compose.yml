@@ -28,6 +28,11 @@ services:
     build: ./proyectos/django-backend
     container_name: app_django
     restart: unless-stopped
+    depends_on:
+      - django-db
+    environment:
+      - DB_HOST=django-db
+      - DB_PORT=5432
 
   # Proyecto 3: FastAPI
   fastapi-service:
@@ -68,6 +73,18 @@ services:
       - fastapi_pgdata:/var/lib/postgresql/data
     restart: unless-stopped
 
+  # Base de Datos para Django
+  django-db:
+    image: postgres:15-alpine
+    container_name: django_db
+    environment:
+      - POSTGRES_DB=gestion_parking_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - django_pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
   # Base de Datos para Laravel
   laravel-db:
     image: postgres:14.15-alpine
@@ -84,3 +101,4 @@ services:
 volumes:
   fastapi_pgdata:
   laravel_pgdata:
+  django_pgdata:
