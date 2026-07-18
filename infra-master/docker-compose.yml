@@ -28,6 +28,13 @@ services:
     build: ./proyectos/django-backend
     container_name: app_django
     restart: unless-stopped
+    deploy:
+      # <-- AÑADE ESTO
+      resources:
+        # <-- AÑADE ESTO
+        limits:
+          # <-- AÑADE ESTO
+          memory: 512M
     depends_on:
       - django-db
     environment:
@@ -39,6 +46,13 @@ services:
     build: ./proyectos/fastapi-service
     container_name: app_fastapi
     restart: unless-stopped
+    deploy:
+      # <-- AÑADE ESTO
+      resources:
+        # <-- AÑADE ESTO
+        limits:
+          # <-- AÑADE ESTO
+          memory: 512M
     depends_on:
       - fastapi-db
     environment:
